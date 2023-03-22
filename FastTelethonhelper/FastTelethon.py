@@ -328,14 +328,14 @@ def stream_file(file_to_stream: BinaryIO, chunk_size=1024):
 
 
 async def _internal_transfer_to_telegram(
-    client: TelegramClient, response: BinaryIO, progress_callback: callable
+    client: TelegramClient, response: BinaryIO,progress_callback: callable,connection_count: Optional[int] = None
 ) -> Tuple[TypeInputFile, int]:
     file_id = helpers.generate_random_long()
     file_size = os.path.getsize(response.name)
 
     hash_md5 = hashlib.md5()
     uploader = ParallelTransferrer(client)
-    part_size, part_count, is_large = await uploader.init_upload(file_id, file_size)
+    part_size, part_count, is_large = await uploader.init_upload(file_id, file_size,None,connection_count)
     buffer = bytearray()
     for data in stream_file(response):
         if progress_callback:
@@ -396,8 +396,9 @@ async def upload_file(
     client: TelegramClient,
     file: BinaryIO,
     name,
+    connection_count: Optional[int] = None,
     progress_callback: callable = None,
 ) -> TypeInputFile:
     global filename
     filename = name
-    return (await _internal_transfer_to_telegram(client, file, progress_callback))[0]
+    return (await _internal_transfer_to_telegram(client, file,progress_callback,connection_count))[0]
