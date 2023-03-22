@@ -78,7 +78,7 @@ async def fast_download(client, msg, reply = None, download_folder = None, progr
             )
     return download_location
 
-async def fast_upload(client, file_location, reply=None, name=None, progress_bar_function = progress_bar_str):
+async def fast_upload(client, file_location, connection_count=20, reply=None, name=None,progress_bar_function = progress_bar_str):
     timer = Timer()
     if name == None:
         name = file_location.split("/")[-1]
@@ -92,7 +92,8 @@ async def fast_upload(client, file_location, reply=None, name=None, progress_bar
                 client=client,
                 file=f,
                 name=name,
-                progress_callback=progress_bar
+                progress_callback=progress_bar,
+                connection_count=connection_count
             )
     else:
         with open(file_location, "rb") as f:
